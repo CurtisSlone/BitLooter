@@ -1,13 +1,13 @@
 import * as ex from 'excalibur';
-
+import { PlayerConfig } from '../Players/PlayerConfig';
 export class DebugPlayer extends ex.Actor {
     constructor() {
         super({
             pos: ex.vec(100, 100),
-            width: 50,
-            height: 50,
+            width: PlayerConfig.width,
+            height: PlayerConfig.height,
             color: ex.Color.Red,
-            anchor: ex.vec(0.5, 0.5)
+            anchor: PlayerConfig.anchor
         });
     }
 }

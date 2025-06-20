@@ -3,11 +3,10 @@ import { PlayerConfig } from '../Players/PlayerConfig';
 export class DebugPlayer extends ex.Actor {
     constructor() {
         super({
-            pos: ex.vec(100, 100),
+            pos: PlayerConfig.position,
             width: PlayerConfig.width,
             height: PlayerConfig.height,
             color: ex.Color.Red,
-            anchor: PlayerConfig.anchor
         });
     }
 }

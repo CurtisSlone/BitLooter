@@ -1,5 +1,4 @@
 import * as ex from 'excalibur';
-import { GameConfig } from '../GameConfig';
 
 export const PlayerConfig = {
     width: 32,

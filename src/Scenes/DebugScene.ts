@@ -7,8 +7,9 @@ export class DebugScene extends ex.Scene {
     map: Map = new Map();
 
     override onInitialize(engine: ex.Engine): void {
-        this.add(this.map);
         this.add(this.player);
+        this.add(this.map);
+        
     }
 
 }   

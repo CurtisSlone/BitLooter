@@ -10,4 +10,6 @@ export class DebugPlayer extends ex.Actor {
             anchor: ex.vec(0.5, 0.5)
         });
     }
+
+    
 }

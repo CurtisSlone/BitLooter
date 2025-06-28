@@ -15,12 +15,15 @@ export class Player extends ex.Actor {
     private playerColor: ex.Color;
 
     constructor(playerData: PlayerData) {
+        // Player scale should match map scale for consistency
+        const PLAYER_SCALE = 2; // Should match MAP_SCALE in OverworldScene
+        
         super({
             pos: playerData.position,
-            width: 32,
-            height: 32,
+            width: 16, // Base tile size
+            height: 16, // Base tile size
             anchor: ex.vec(0.5, 0.5),
-            scale: ex.vec(2, 2), // 2x scale for pixel art
+            scale: ex.vec(PLAYER_SCALE, PLAYER_SCALE),
             name: `player-${playerData.id}`
         });
 

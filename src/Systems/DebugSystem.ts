@@ -11,8 +11,9 @@ export class DebugSystem extends ex.System {
     });
 
     private engine!: ex.Engine;
+    private debugActors: ex.ScreenElement[] = [];
 
-    public initialize(_world: ex.World, scene: ex.Scene): void {
+    public initialize(world: ex.World, scene: ex.Scene): void {
         this.engine = scene.engine;
     }
 
@@ -38,42 +39,46 @@ export class DebugSystem extends ex.System {
 
     private createDebugUI(debugInfo: string[], scene: ex.Scene): void {
         // Remove existing debug UI
-        const existingDebug = scene.actors.find(a => a.name === 'debug-ui');
-        if (existingDebug) {
-            scene.remove(existingDebug);
-        }
+        this.debugActors.forEach(actor => {
+            if (scene.actors.includes(actor)) {
+                scene.remove(actor);
+            }
+        });
+        this.debugActors = [];
 
-        // Create a screen element for debug info
-        const debugActor = new ex.ScreenElement({
+        // Create background
+        const background = new ex.ScreenElement({
             pos: ex.vec(10, 10),
             anchor: ex.vec(0, 0),
-            name: 'debug-ui'
+            name: 'debug-bg'
         });
 
-        // Create background rectangle
-        const bgWidth = 300;
-        const bgHeight = debugInfo.length * 18 + 10;
-        const background = new ex.Rectangle({
-            width: bgWidth,
-            height: bgHeight,
-            color: new ex.Color(0, 0, 0, 0.7)
+        const bgRect = new ex.Rectangle({
+            width: 300,
+            height: debugInfo.length * 25 + 20,
+            color: new ex.Color(0, 0, 0, 0)
         });
 
-        debugActor.graphics.use(background);
+        background.graphics.use(bgRect);
+        scene.add(background);
+        this.debugActors.push(background);
 
-        // Create text for each debug line
-        const textGroup = new ex.GraphicsGroup({
-            members: debugInfo.map((line, index) => ({
-                graphic: new ex.Text({
-                    text: line,
-                    font: this.font
-                }),
-                pos: ex.vec(5, 15 + (index * 18)),
-                offset: ex.vec(0, 0)
-            }))
+        // Create individual text actors for each line
+        debugInfo.forEach((line, index) => {
+            const textActor = new ex.ScreenElement({
+                pos: ex.vec(20, 25 + (index * 25)), // 25px spacing between lines
+                anchor: ex.vec(0, 0),
+                name: `debug-text-${index}`
+            });
+
+            const text = new ex.Text({
+                text: line,
+                font: this.font
+            });
+
+            textActor.graphics.use(text);
+            scene.add(textActor);
+            this.debugActors.push(textActor);
         });
-
-        debugActor.graphics.use(textGroup);
-        scene.add(debugActor);
     }
 }

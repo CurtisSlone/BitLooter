@@ -59,7 +59,7 @@ export class OverworldScene extends ex.Scene {
 
         // Scale the tilemap to match pixel art style
         // Options: 1 = original size, 2 = double size, 3 = triple size
-        const MAP_SCALE = 2; // Change this value to adjust map scale
+        const MAP_SCALE = 1; // Change this value to adjust map scale
         this.tilemap.scale = ex.vec(MAP_SCALE, MAP_SCALE);
 
         console.log(`Map scaled to ${MAP_SCALE}x`);
@@ -170,7 +170,7 @@ export class OverworldScene extends ex.Scene {
         console.log('Using fallback spawn position');
         const centerX = (this.mapData?.width || 32) * (this.mapData?.tilewidth || 16);
         const centerY = (this.mapData?.height || 32) * (this.mapData?.tileheight || 16);
-        return ex.vec(centerX, centerY);
+        return ex.vec(500, 500);
     }
 
     private setupCamera(): void {

@@ -20,7 +20,7 @@ export class Player extends ex.Actor {
 
     constructor(playerData: PlayerData) {
         // Player scale should match map scale for consistency
-        const PLAYER_SCALE = 2; // Should match MAP_SCALE in OverworldScene
+        const PLAYER_SCALE = 1; // Should match MAP_SCALE in OverworldScene
         
         super({
             pos: playerData.position,

@@ -17,10 +17,13 @@ export class Player extends ex.Actor {
     public readonly isLocalPlayer: boolean;
     private playerColor: ex.Color;
     private collisionSystem: CollisionSystem | null = null;
+    
+    // Collision box configuration
+    private readonly COLLISION_SIZE_PERCENTAGE = 0.75; // 75% of player size (12px out of 16px)
 
     constructor(playerData: PlayerData) {
         // Player scale should match map scale for consistency
-        const PLAYER_SCALE = 1; // Should match MAP_SCALE in OverworldScene
+        const PLAYER_SCALE = 1; // Match the map scale
         
         super({
             pos: playerData.position,
@@ -35,6 +38,12 @@ export class Player extends ex.Actor {
         this.playerName = playerData.name;
         this.isLocalPlayer = playerData.isLocalPlayer;
         this.playerColor = playerData.color;
+
+        // Log collision box info
+        const fullSize = this.width * this.scale.x;
+        const collisionSize = fullSize * this.COLLISION_SIZE_PERCENTAGE;
+        console.log('Player visual size:', fullSize + 'x' + fullSize + 'px');
+        console.log('Player collision size:', collisionSize + 'x' + collisionSize + 'px (' + (this.COLLISION_SIZE_PERCENTAGE * 100) + '%)');
     }
 
     override onInitialize(engine: ex.Engine): void {
@@ -45,9 +54,9 @@ export class Player extends ex.Actor {
         const scene = engine.currentScene as any;
         if (scene.getCollisionSystem) {
             this.collisionSystem = scene.getCollisionSystem();
-            console.log('Player found collision system');
+            console.log('✅ Player found collision system');
         } else {
-            console.warn('Player could not find collision system');
+            console.warn('⚠️ Player could not find collision system');
         }
         
         // Only setup input for local player
@@ -150,8 +159,15 @@ export class Player extends ex.Actor {
         const newPosition = this.pos.add(movement);
         
         // Create bounding box for collision check
-        const halfWidth = (this.width * this.scale.x) / 2;
-        const halfHeight = (this.height * this.scale.y) / 2;
+        // Reduce collision area by 10% to make it more forgiving
+        const fullWidth = (this.width * this.scale.x);
+        const fullHeight = (this.height * this.scale.y);
+        
+        const collisionWidth = fullWidth * 0.9; // 90% of full size
+        const collisionHeight = fullHeight * 0.9; // 90% of full size
+        
+        const halfWidth = collisionWidth / 2;
+        const halfHeight = collisionHeight / 2;
         
         const bounds = new ex.BoundingBox({
             left: newPosition.x - halfWidth,
@@ -173,8 +189,15 @@ export class Player extends ex.Actor {
     private trySlideMovement(movement: ex.Vector): void {
         if (!this.collisionSystem) return;
 
-        const halfWidth = (this.width * this.scale.x) / 2;
-        const halfHeight = (this.height * this.scale.y) / 2;
+        // Use the same reduced collision size for sliding
+        const fullWidth = (this.width * this.scale.x);
+        const fullHeight = (this.height * this.scale.y);
+        
+        const collisionWidth = fullWidth * 0.9; // 90% of full size
+        const collisionHeight = fullHeight * 0.9; // 90% of full size
+        
+        const halfWidth = collisionWidth / 2;
+        const halfHeight = collisionHeight / 2;
 
         // Try horizontal movement only
         if (movement.x !== 0) {

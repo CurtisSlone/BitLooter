@@ -59,7 +59,7 @@ export class OverworldScene extends ex.Scene {
 
         // Scale the tilemap to match pixel art style
         // Options: 1 = original size, 2 = double size, 3 = triple size
-        const MAP_SCALE = 1; // Change this value to adjust map scale
+        const MAP_SCALE = 2; // Change this value to adjust map scale
         this.tilemap.scale = ex.vec(MAP_SCALE, MAP_SCALE);
 
         console.log(`Map scaled to ${MAP_SCALE}x`);
@@ -96,22 +96,7 @@ export class OverworldScene extends ex.Scene {
                             Math.floor(tileIndex / tilesetSprite.columns)
                         );
                         
-                        const tile = this.tilemap.getTile(x, y);
-                        if (tile) {
-                            tile.addGraphic(sprite);
-                            
-                            // Add red outline to collision objects (floor_objects layer)
-                            if (layer.name === 'floor_objects') {
-                                const redOutline = new ex.Rectangle({
-                                    width: this.mapData.tilewidth,
-                                    height: this.mapData.tileheight,
-                                    color: ex.Color.Transparent,
-                                    strokeColor: ex.Color.Red,
-                                    lineWidth: 2
-                                });
-                                tile.addGraphic(redOutline);
-                            }
-                        }
+                        this.tilemap.getTile(x, y)?.addGraphic(sprite);
                     }
                 }
             }
@@ -151,26 +136,51 @@ export class OverworldScene extends ex.Scene {
     }
 
     private findPlayerSpawnPoint(): ex.Vector {
-        // Look for spawn point in object layers
+        // Look for spawn area in object layers
         if (this.mapData?.layers) {
             for (const layer of this.mapData.layers) {
                 if (layer.type === 'objectgroup' && layer.name === 'spawn_area') {
-                    for (const obj of layer.objects || []) {
-                        if (obj.name === 'player_spawn') {
-                            console.log('Found player spawn in tilemap:', obj.x, obj.y);
-                            // Scale the spawn position to match map scale
-                            return ex.vec(obj.x * 2, obj.y * 2); // Multiply by MAP_SCALE
+                    // Check if there are any objects in the spawn area layer
+                    if (layer.objects && layer.objects.length > 0) {
+                        console.log('Found spawn_area layer with', layer.objects.length, 'spawn zones');
+                        
+                        // Get all spawn area objects (rectangles)
+                        const spawnZones = layer.objects.filter((obj: any) => 
+                            obj.width && obj.height // Make sure it's a rectangle with dimensions
+                        );
+                        
+                        if (spawnZones.length > 0) {
+                            // Pick a random spawn zone
+                            const randomZone = spawnZones[Math.floor(Math.random() * spawnZones.length)];
+                            
+                            // Pick a random point within that zone
+                            const randomX = randomZone.x + Math.random() * randomZone.width;
+                            const randomY = randomZone.y + Math.random() * randomZone.height;
+                            
+                            console.log('Selected spawn zone:', randomZone.x, randomZone.y, randomZone.width, 'x', randomZone.height);
+                            console.log('Random spawn point:', Math.round(randomX), Math.round(randomY));
+                            
+                            // No scaling needed since MAP_SCALE is 1
+                            return ex.vec(randomX, randomY);
+                        }
+                        
+                        // Fallback: if no rectangles, look for point objects
+                        const pointObjects = layer.objects.filter((obj: any) => !obj.width && !obj.height);
+                        if (pointObjects.length > 0) {
+                            const randomPoint = pointObjects[Math.floor(Math.random() * pointObjects.length)];
+                            console.log('Using random point object spawn:', randomPoint.x, randomPoint.y);
+                            return ex.vec(randomPoint.x, randomPoint.y);
                         }
                     }
                 }
             }
         }
         
-        // Fallback to center of map if no spawn point found
-        console.log('Using fallback spawn position');
-        const centerX = (this.mapData?.width || 32) * (this.mapData?.tilewidth || 16);
-        const centerY = (this.mapData?.height || 32) * (this.mapData?.tileheight || 16);
-        return ex.vec(500, 500);
+        // Fallback to center of map if no spawn area found
+        console.log('No spawn area found, using map center');
+        const centerX = (this.mapData?.width || 32) * (this.mapData?.tilewidth || 16) / 2;
+        const centerY = (this.mapData?.height || 32) * (this.mapData?.tileheight || 16) / 2;
+        return ex.vec(centerX, centerY);
     }
 
     private setupCamera(): void {

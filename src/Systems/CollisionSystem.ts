@@ -25,7 +25,7 @@ export class CollisionSystem extends ex.System {
         );
 
         if (this.collisionLayer) {
-            console.log('Collision layer found:', this.collisionLayer.name);
+            console.log('✅ Collision layer found:', this.collisionLayer.name);
             console.log('Collision layer data length:', this.collisionLayer.data?.length);
             console.log('Sample collision data:', this.collisionLayer.data?.slice(0, 10));
             
@@ -33,12 +33,12 @@ export class CollisionSystem extends ex.System {
             const nonZeroTiles = this.collisionLayer.data?.filter((gid: number) => gid > 0);
             console.log('🔍 Total non-zero collision tiles:', nonZeroTiles?.length);
             if (nonZeroTiles?.length > 0) {
-                console.log('First few collision tile GIDs:', nonZeroTiles.slice(0, 5));
+                console.log('📍 First few collision tile GIDs:', nonZeroTiles.slice(0, 5));
             } else {
-                console.warn('NO collision tiles found in floor_objects layer!');
+                console.warn('⚠️ NO collision tiles found in floor_objects layer!');
             }
         } else {
-            console.warn('No floor_objects collision layer found');
+            console.warn('⚠️ No floor_objects collision layer found');
             console.log('Available tile layers:', mapData.layers?.filter((l: any) => l.type === 'tilelayer').map((l: any) => l.name));
         }
     }

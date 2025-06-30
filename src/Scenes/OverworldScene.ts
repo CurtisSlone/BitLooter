@@ -1,18 +1,27 @@
 import * as ex from 'excalibur';
 import { Resources } from '../resources.js';
 import { DebugSystem } from '../Systems/DebugSystem.js';
+import { CollisionSystem } from '../Systems/CollisionSystem.js';
 import { Player, PlayerData } from '../Actors/Player.js';
 
 export class OverworldScene extends ex.Scene {
     private tilemap!: ex.TileMap;
     private localPlayer!: Player;
     private mapData: any; // Store the loaded Tiled JSON data
+    private collisionSystem!: CollisionSystem;
+
+    // Make collision system accessible to other actors
+    public getCollisionSystem(): CollisionSystem {
+        return this.collisionSystem;
+    }
 
     override onInitialize(_engine: ex.Engine): void {
         console.log('Initializing Overworld Scene...');
         
-        // Add debug system to show info
+        // Add systems to the scene
         this.world.add(new DebugSystem());
+        this.collisionSystem = new CollisionSystem();
+        this.world.add(this.collisionSystem);
 
         // Create the tilemap from Tiled data
         this.createTilemap();
@@ -70,7 +79,7 @@ export class OverworldScene extends ex.Scene {
         console.log('Tileset sprite sheet created with', tilesetSprite.columns, 'x', tilesetSprite.rows, 'tiles');
 
         // Process each layer from the Tiled data
-        this.mapData.layers?.forEach((layer: any, layerIndex: number) => {
+        this.mapData.layers?.forEach((layer: any) => {
             if (layer.type === 'tilelayer' && layer.data) {
                 console.log(`Processing tile layer: ${layer.name}`);
                 
@@ -87,7 +96,22 @@ export class OverworldScene extends ex.Scene {
                             Math.floor(tileIndex / tilesetSprite.columns)
                         );
                         
-                        this.tilemap.getTile(x, y)?.addGraphic(sprite);
+                        const tile = this.tilemap.getTile(x, y);
+                        if (tile) {
+                            tile.addGraphic(sprite);
+                            
+                            // Add red outline to collision objects (floor_objects layer)
+                            if (layer.name === 'floor_objects') {
+                                const redOutline = new ex.Rectangle({
+                                    width: this.mapData.tilewidth,
+                                    height: this.mapData.tileheight,
+                                    color: ex.Color.Transparent,
+                                    strokeColor: ex.Color.Red,
+                                    lineWidth: 2
+                                });
+                                tile.addGraphic(redOutline);
+                            }
+                        }
                     }
                 }
             }
@@ -95,6 +119,9 @@ export class OverworldScene extends ex.Scene {
 
         // Add the tilemap to the scene
         this.add(this.tilemap);
+        
+        // Pass tilemap data to collision system
+        this.collisionSystem.setTilemapData(this.tilemap, this.mapData);
         
         console.log('Tilemap created and added to scene');
         console.log('Map size:', this.tilemap.columns, 'x', this.tilemap.rows);
@@ -131,7 +158,8 @@ export class OverworldScene extends ex.Scene {
                     for (const obj of layer.objects || []) {
                         if (obj.name === 'player_spawn') {
                             console.log('Found player spawn in tilemap:', obj.x, obj.y);
-                            return ex.vec(obj.x, obj.y);
+                            // Scale the spawn position to match map scale
+                            return ex.vec(obj.x * 2, obj.y * 2); // Multiply by MAP_SCALE
                         }
                     }
                 }
@@ -140,8 +168,8 @@ export class OverworldScene extends ex.Scene {
         
         // Fallback to center of map if no spawn point found
         console.log('Using fallback spawn position');
-        const centerX = (this.mapData?.width || 32) * (this.mapData?.tilewidth || 16) / 2;
-        const centerY = (this.mapData?.height || 32) * (this.mapData?.tileheight || 16) / 2;
+        const centerX = (this.mapData?.width || 32) * (this.mapData?.tilewidth || 16);
+        const centerY = (this.mapData?.height || 32) * (this.mapData?.tileheight || 16);
         return ex.vec(centerX, centerY);
     }
 

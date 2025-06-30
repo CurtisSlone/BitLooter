@@ -1,5 +1,8 @@
 import * as ex from 'excalibur';
 
+// Import the CollisionSystem class for type checking
+import { CollisionSystem } from '../Systems/CollisionSystem.js';
+
 export interface PlayerData {
     id: string;
     name: string;
@@ -13,6 +16,7 @@ export class Player extends ex.Actor {
     public readonly playerName: string;
     public readonly isLocalPlayer: boolean;
     private playerColor: ex.Color;
+    private collisionSystem: CollisionSystem | null = null;
 
     constructor(playerData: PlayerData) {
         // Player scale should match map scale for consistency
@@ -33,13 +37,22 @@ export class Player extends ex.Actor {
         this.playerColor = playerData.color;
     }
 
-    override onInitialize(_engine: ex.Engine): void {
+    override onInitialize(engine: ex.Engine): void {
         this.setupGraphics();
         this.setupDebugLabel();
         
+        // Get reference to collision system from the scene
+        const scene = engine.currentScene as any;
+        if (scene.getCollisionSystem) {
+            this.collisionSystem = scene.getCollisionSystem();
+            console.log('Player found collision system');
+        } else {
+            console.warn('Player could not find collision system');
+        }
+        
         // Only setup input for local player
         if (this.isLocalPlayer) {
-            this.setupInput(_engine);
+            this.setupInput(engine);
         }
     }
 
@@ -100,7 +113,6 @@ export class Player extends ex.Actor {
 
     private setupInput(engine: ex.Engine): void {
         // Simple keyboard input for local player only
-        // No movement component - direct position manipulation
         const speed = 100; // pixels per second
 
         engine.input.keyboard.on('hold', (evt) => {
@@ -120,14 +132,80 @@ export class Player extends ex.Actor {
                 movement.y = speed * delta;
             }
 
-            // Apply movement
+            // Apply movement with collision checking
             if (movement.magnitude > 0) {
-                this.pos = this.pos.add(movement);
-                
-                // For multiplayer: This is where you'd send position updates
-                // this.sendPositionUpdate(this.pos);
+                this.moveWithCollision(movement);
             }
         });
+    }
+
+    private moveWithCollision(movement: ex.Vector): void {
+        if (!this.collisionSystem) {
+            // No collision system, move freely
+            this.pos = this.pos.add(movement);
+            return;
+        }
+
+        // Calculate new position
+        const newPosition = this.pos.add(movement);
+        
+        // Create bounding box for collision check
+        const halfWidth = (this.width * this.scale.x) / 2;
+        const halfHeight = (this.height * this.scale.y) / 2;
+        
+        const bounds = new ex.BoundingBox({
+            left: newPosition.x - halfWidth,
+            right: newPosition.x + halfWidth,
+            top: newPosition.y - halfHeight,
+            bottom: newPosition.y + halfHeight
+        });
+
+        // Check collision at new position
+        if (!this.collisionSystem.checkRectangleCollision(bounds)) {
+            // No collision, move to new position
+            this.pos = newPosition;
+        } else {
+            // Collision detected, try sliding along walls
+            this.trySlideMovement(movement);
+        }
+    }
+
+    private trySlideMovement(movement: ex.Vector): void {
+        if (!this.collisionSystem) return;
+
+        const halfWidth = (this.width * this.scale.x) / 2;
+        const halfHeight = (this.height * this.scale.y) / 2;
+
+        // Try horizontal movement only
+        if (movement.x !== 0) {
+            const horizontalPos = this.pos.add(ex.vec(movement.x, 0));
+            const horizontalBounds = new ex.BoundingBox({
+                left: horizontalPos.x - halfWidth,
+                right: horizontalPos.x + halfWidth,
+                top: horizontalPos.y - halfHeight,
+                bottom: horizontalPos.y + halfHeight
+            });
+
+            if (!this.collisionSystem.checkRectangleCollision(horizontalBounds)) {
+                this.pos = horizontalPos;
+                return;
+            }
+        }
+
+        // Try vertical movement only
+        if (movement.y !== 0) {
+            const verticalPos = this.pos.add(ex.vec(0, movement.y));
+            const verticalBounds = new ex.BoundingBox({
+                left: verticalPos.x - halfWidth,
+                right: verticalPos.x + halfWidth,
+                top: verticalPos.y - halfHeight,
+                bottom: verticalPos.y + halfHeight
+            });
+
+            if (!this.collisionSystem.checkRectangleCollision(verticalBounds)) {
+                this.pos = verticalPos;
+            }
+        }
     }
 
     // Methods for multiplayer synchronization

@@ -1,4 +1,5 @@
 import * as ex from 'excalibur';
+import { Resources } from '../resources.js';
 
 // Import the CollisionSystem class for type checking
 import { CollisionSystem } from '../Systems/CollisionSystem.js';
@@ -17,6 +18,12 @@ export class Player extends ex.Actor {
     public readonly isLocalPlayer: boolean;
     private playerColor: ex.Color;
     private collisionSystem: CollisionSystem | null = null;
+    
+    // Animation properties
+    private spriteSheet!: ex.SpriteSheet;
+    private animations: { [key: string]: ex.Animation } = {};
+    private currentDirection: string = 'down';
+    private isMoving: boolean = false;
     
     // Collision box configuration
     private readonly COLLISION_SIZE_PERCENTAGE = 0.75; // 75% of player size (12px out of 16px)
@@ -54,9 +61,9 @@ export class Player extends ex.Actor {
         const scene = engine.currentScene as any;
         if (scene.getCollisionSystem) {
             this.collisionSystem = scene.getCollisionSystem();
-            console.log('Player found collision system');
+            console.log('✅ Player found collision system');
         } else {
-            console.warn('Player could not find collision system');
+            console.warn('⚠️ Player could not find collision system');
         }
         
         // Only setup input for local player
@@ -122,7 +129,7 @@ export class Player extends ex.Actor {
 
     private setupInput(engine: ex.Engine): void {
         // Simple keyboard input for local player only
-        const speed = 65; // pixels per second
+        const speed = 100; // pixels per second
 
         engine.input.keyboard.on('hold', (evt) => {
             const delta = engine.clock.elapsed() / 1000; // Convert to seconds

@@ -5,12 +5,16 @@ export const Resources = {
     overworldTilemap: new ex.Resource('./maps/overworld.json', 'json'),
     
     // Tileset image
-    overworldTileset: new ex.ImageSource('./maps/tilesets/Overworld_Tileset.png')
+    overworldTileset: new ex.ImageSource('./maps/tilesets/Overworld_Tileset.png'),
+    
+    // Player sprite sheet
+    playerSpriteSheet: new ex.ImageSource('./sprites/link-blue-sheet.png')
 } as const;
 
 export const loader = new ex.Loader([
     Resources.overworldTilemap,
-    Resources.overworldTileset
+    Resources.overworldTileset,
+    Resources.playerSpriteSheet
 ]);
 
 // Add loading event listeners for debugging

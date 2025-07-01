@@ -1,5 +1,6 @@
 import * as ex from 'excalibur';
 import { Resources } from '../resources.js';
+import {GameConstants} from '../GameConstants.js';
 
 // Import the CollisionSystem class for type checking
 import { CollisionSystem } from '../Systems/CollisionSystem.js';
@@ -20,7 +21,6 @@ export class Player extends ex.Actor {
     private collisionSystem: CollisionSystem | null = null;
     
     // Animation properties
-    private spriteSheet!: ex.SpriteSheet;
     private animations: { [key: string]: ex.Animation } = {};
     private currentDirection: string = 'down';
     private isMoving: boolean = false;
@@ -29,15 +29,13 @@ export class Player extends ex.Actor {
     private readonly COLLISION_SIZE_PERCENTAGE = 0.75; // 75% of player size (12px out of 16px)
 
     constructor(playerData: PlayerData) {
-        // Player scale should match map scale for consistency
-        const PLAYER_SCALE = 1; // Match the map scale
-        
+   
         super({
             pos: playerData.position,
             width: 16, // Base tile size
             height: 16, // Base tile size
             anchor: ex.vec(0.5, 0.5),
-            scale: ex.vec(PLAYER_SCALE, PLAYER_SCALE),
+            scale: ex.vec(GameConstants.SCALE, GameConstants.SCALE),
             name: `player-${playerData.id}`
         });
 
@@ -49,8 +47,6 @@ export class Player extends ex.Actor {
         // Log collision box info
         const fullSize = this.width * this.scale.x;
         const collisionSize = fullSize * this.COLLISION_SIZE_PERCENTAGE;
-        console.log('Player visual size:', fullSize + 'x' + fullSize + 'px');
-        console.log('Player collision size:', collisionSize + 'x' + collisionSize + 'px (' + (this.COLLISION_SIZE_PERCENTAGE * 100) + '%)');
     }
 
     override onInitialize(engine: ex.Engine): void {
@@ -61,9 +57,9 @@ export class Player extends ex.Actor {
         const scene = engine.currentScene as any;
         if (scene.getCollisionSystem) {
             this.collisionSystem = scene.getCollisionSystem();
-            console.log('✅ Player found collision system');
+            console.log('Player found collision system');
         } else {
-            console.warn('⚠️ Player could not find collision system');
+            console.warn('Player could not find collision system');
         }
         
         // Only setup input for local player
@@ -260,10 +256,5 @@ export class Player extends ex.Actor {
     public sendPositionUpdate(position: ex.Vector): void {
         // TODO: Send position update to server
         console.log(`Player ${this.playerId} moved to:`, position);
-    }
-
-    public changeColor(newColor: ex.Color): void {
-        this.playerColor = newColor;
-        this.setupGraphics(); // Rebuild graphics with new color
     }
 }

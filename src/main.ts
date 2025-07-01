@@ -15,8 +15,6 @@ class BitlooterGame extends ex.Engine {
     }
 
     public async initialize(): Promise<void> {
-        console.log('Starting Bitlooter Game...');
-        
         // Create and add the overworld scene
         const overworldScene = new OverworldScene();
         this.add('overworld', overworldScene);
@@ -26,8 +24,6 @@ class BitlooterGame extends ex.Engine {
         
         // Go to the overworld scene
         this.goToScene('overworld');
-        
-        console.log('Game started successfully!');
     }
 }
 

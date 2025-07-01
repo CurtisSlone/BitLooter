@@ -14,33 +14,10 @@ export class CollisionSystem extends ex.System {
     public setTilemapData(tilemap: ex.TileMap, mapData: any): void {
         this.tilemap = tilemap;
         
-        console.log('Setting tilemap data. Map layers:');
-        mapData.layers?.forEach((layer: any) => {
-            console.log(`- Layer: ${layer.name}, Type: ${layer.type}, Has data: ${!!layer.data}`);
-        });
-        
         // Find the floor_objects layer for collision
         this.collisionLayer = mapData.layers?.find((layer: any) => 
             layer.type === 'tilelayer' && layer.name === 'floor_objects'
         );
-
-        if (this.collisionLayer) {
-            console.log('✅ Collision layer found:', this.collisionLayer.name);
-            console.log('Collision layer data length:', this.collisionLayer.data?.length);
-            console.log('Sample collision data:', this.collisionLayer.data?.slice(0, 10));
-            
-            // Check if there's ANY collision data at all
-            const nonZeroTiles = this.collisionLayer.data?.filter((gid: number) => gid > 0);
-            console.log('🔍 Total non-zero collision tiles:', nonZeroTiles?.length);
-            if (nonZeroTiles?.length > 0) {
-                console.log('📍 First few collision tile GIDs:', nonZeroTiles.slice(0, 5));
-            } else {
-                console.warn('⚠️ NO collision tiles found in floor_objects layer!');
-            }
-        } else {
-            console.warn('⚠️ No floor_objects collision layer found');
-            console.log('Available tile layers:', mapData.layers?.filter((l: any) => l.type === 'tilelayer').map((l: any) => l.name));
-        }
     }
 
     public update(_elapsed: number): void {
@@ -50,7 +27,6 @@ export class CollisionSystem extends ex.System {
 
     public checkCollision(worldPosition: ex.Vector): boolean {
         if (!this.tilemap || !this.collisionLayer) {
-            console.log('No tilemap or collision layer available');
             return false; // No collision if no tilemap
         }
 
@@ -58,20 +34,15 @@ export class CollisionSystem extends ex.System {
         const tileX = Math.floor(worldPosition.x / (this.tilemap.tileWidth * this.tilemap.scale.x));
         const tileY = Math.floor(worldPosition.y / (this.tilemap.tileHeight * this.tilemap.scale.y));
 
-        console.log(`Checking collision at world pos (${worldPosition.x}, ${worldPosition.y}) -> tile (${tileX}, ${tileY})`);
-
         // Check if position is within map bounds
         if (tileX < 0 || tileX >= this.tilemap.columns || 
             tileY < 0 || tileY >= this.tilemap.rows) {
-            console.log('Position outside map bounds - collision');
             return true; // Collision with map boundaries
         }
 
         // Check if there's a collision tile at this position
         const tileIndex = tileY * this.tilemap.columns + tileX;
         const gid = this.collisionLayer.data[tileIndex];
-
-        console.log(`Tile at (${tileX}, ${tileY}) has GID: ${gid}`);
 
         // GID > 0 means there's a tile (solid object)
         return gid > 0;

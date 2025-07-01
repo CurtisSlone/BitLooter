@@ -3,6 +3,7 @@ import { Resources } from '../resources.js';
 import { DebugSystem } from '../Systems/DebugSystem.js';
 import { CollisionSystem } from '../Systems/CollisionSystem.js';
 import { Player, PlayerData } from '../Actors/Player.js';
+import { GameConstants } from '../GameConstants.js';
 
 export class OverworldScene extends ex.Scene {
     private tilemap!: ex.TileMap;
@@ -16,7 +17,7 @@ export class OverworldScene extends ex.Scene {
     }
 
     override onInitialize(_engine: ex.Engine): void {
-        console.log('Initializing Overworld Scene...');
+  ;
         
         // Add systems to the scene
         this.world.add(new DebugSystem());
@@ -32,22 +33,18 @@ export class OverworldScene extends ex.Scene {
         // Setup camera to follow local player
         this.setupCamera();
 
-        console.log('Overworld Scene initialized successfully');
+       
     }
 
     private createTilemap(): void {
-        console.log('Creating tilemap from Tiled...');
-        
+
         if (!Resources.overworldTilemap.isLoaded()) {
-            console.error('Tiled map not loaded yet!');
             return;
         }
 
         // Get the loaded JSON data
         this.mapData = Resources.overworldTilemap.data;
-        console.log('Map data loaded:', this.mapData);
-        console.log('Map dimensions:', this.mapData.width, 'x', this.mapData.height);
-        console.log('Tile size:', this.mapData.tilewidth, 'x', this.mapData.tileheight);
+
 
         // Create tilemap manually using the JSON data
         this.tilemap = new ex.TileMap({
@@ -59,11 +56,8 @@ export class OverworldScene extends ex.Scene {
 
         // Scale the tilemap to match pixel art style
         // Options: 1 = original size, 2 = double size, 3 = triple size
-        const MAP_SCALE = 1; // Change this value to adjust map scale
-        this.tilemap.scale = ex.vec(MAP_SCALE, MAP_SCALE);
-
-        console.log(`Map scaled to ${MAP_SCALE}x`);
-        console.log(`Final map size: ${this.mapData.width * this.mapData.tilewidth * MAP_SCALE} x ${this.mapData.height * this.mapData.tileheight * MAP_SCALE} pixels`);
+         // Change this value to adjust map scale
+        this.tilemap.scale = ex.vec(GameConstants.SCALE, GameConstants.SCALE);
 
         // Create a sprite sheet from the tileset
         const tilesetSprite = ex.SpriteSheet.fromImageSource({
@@ -160,7 +154,7 @@ export class OverworldScene extends ex.Scene {
                             console.log('Selected spawn zone:', randomZone.x, randomZone.y, randomZone.width, 'x', randomZone.height);
                             console.log('Random spawn point:', Math.round(randomX), Math.round(randomY));
                             
-                            // No scaling needed since MAP_SCALE is 1
+                            // No scaling needed since GameConstants.SCALE is 1
                             return ex.vec(randomX, randomY);
                         }
                         
@@ -177,7 +171,6 @@ export class OverworldScene extends ex.Scene {
         }
         
         // Fallback to center of map if no spawn area found
-        console.log('No spawn area found, using map center');
         const centerX = (this.mapData?.width || 32) * (this.mapData?.tilewidth || 16) / 2;
         const centerY = (this.mapData?.height || 32) * (this.mapData?.tileheight || 16) / 2;
         return ex.vec(centerX, centerY);

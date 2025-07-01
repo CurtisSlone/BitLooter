@@ -31,3 +31,9 @@ Resources.overworldTileset.load().then(() => {
 }).catch((error: any) => {
     console.error('Failed to load tileset:', error);
 });
+
+Resources.playerSpriteSheet.load().then(()=>{
+    console.log('Player Spritesheet loaded');
+}).catch((err: any)=>{
+    console.log("Failed to load player Sprite Sheet");
+});

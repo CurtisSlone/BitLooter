@@ -59,7 +59,7 @@ export class OverworldScene extends ex.Scene {
 
         // Scale the tilemap to match pixel art style
         // Options: 1 = original size, 2 = double size, 3 = triple size
-        const MAP_SCALE = 2; // Change this value to adjust map scale
+        const MAP_SCALE = 1; // Change this value to adjust map scale
         this.tilemap.scale = ex.vec(MAP_SCALE, MAP_SCALE);
 
         console.log(`Map scaled to ${MAP_SCALE}x`);

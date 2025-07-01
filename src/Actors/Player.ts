@@ -54,9 +54,9 @@ export class Player extends ex.Actor {
         const scene = engine.currentScene as any;
         if (scene.getCollisionSystem) {
             this.collisionSystem = scene.getCollisionSystem();
-            console.log('✅ Player found collision system');
+            console.log('Player found collision system');
         } else {
-            console.warn('⚠️ Player could not find collision system');
+            console.warn('Player could not find collision system');
         }
         
         // Only setup input for local player
@@ -122,7 +122,7 @@ export class Player extends ex.Actor {
 
     private setupInput(engine: ex.Engine): void {
         // Simple keyboard input for local player only
-        const speed = 100; // pixels per second
+        const speed = 65; // pixels per second
 
         engine.input.keyboard.on('hold', (evt) => {
             const delta = engine.clock.elapsed() / 1000; // Convert to seconds

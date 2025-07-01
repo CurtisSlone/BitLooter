@@ -17,7 +17,6 @@ export class Player extends ex.Actor {
     public readonly playerId: string;
     public readonly playerName: string;
     public readonly isLocalPlayer: boolean;
-    private startSprite!: ex.Sprite;
     private spriteImageSource: ex.ImageSource;
     private worldCollisionSystem: WorldCollisionSystem | null = null;
     
@@ -44,10 +43,7 @@ export class Player extends ex.Actor {
         this.playerName = playerData.name;
         this.isLocalPlayer = playerData.isLocalPlayer;
         this.spriteImageSource = playerData.spriteImageSource;
-
-        // Log collision box info
-        const fullSize = this.width * this.scale.x;
-        const collisionSize = fullSize * this.COLLISION_SIZE_PERCENTAGE;
+        
     }
 
     override onInitialize(engine: ex.Engine): void {

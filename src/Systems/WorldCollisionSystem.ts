@@ -1,6 +1,6 @@
 import * as ex from 'excalibur';
 
-export class CollisionSystem extends ex.System {
+export class WorldCollisionSystem extends ex.System {
     public systemType = ex.SystemType.Update as const;
     public priority = 95; // Run before movement updates
 

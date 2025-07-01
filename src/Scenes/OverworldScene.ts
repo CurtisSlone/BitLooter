@@ -1,7 +1,7 @@
 import * as ex from 'excalibur';
 import { Resources } from '../resources.js';
 import { DebugSystem } from '../Systems/DebugSystem.js';
-import { CollisionSystem } from '../Systems/CollisionSystem.js';
+import { WorldCollisionSystem } from '../Systems/WorldCollisionSystem.js';
 import { Player, PlayerData } from '../Actors/Player.js';
 import { GameConstants } from '../GameConstants.js';
 
@@ -9,11 +9,11 @@ export class OverworldScene extends ex.Scene {
     private tilemap!: ex.TileMap;
     private localPlayer!: Player;
     private mapData: any; // Store the loaded Tiled JSON data
-    private collisionSystem!: CollisionSystem;
+    private WorldcollisionSystem!: WorldCollisionSystem;
 
     // Make collision system accessible to other actors
-    public getCollisionSystem(): CollisionSystem {
-        return this.collisionSystem;
+    public getWorldCollisionSystem(): WorldCollisionSystem {
+        return this.WorldcollisionSystem;
     }
 
     override onInitialize(_engine: ex.Engine): void {
@@ -21,8 +21,8 @@ export class OverworldScene extends ex.Scene {
         
         // Add systems to the scene
         this.world.add(new DebugSystem());
-        this.collisionSystem = new CollisionSystem();
-        this.world.add(this.collisionSystem);
+        this.WorldcollisionSystem = new WorldCollisionSystem();
+        this.world.add(this.WorldcollisionSystem);
 
         // Create the tilemap from Tiled data
         this.createTilemap();
@@ -100,7 +100,7 @@ export class OverworldScene extends ex.Scene {
         this.add(this.tilemap);
         
         // Pass tilemap data to collision system
-        this.collisionSystem.setTilemapData(this.tilemap, this.mapData);
+        this.WorldcollisionSystem.setTilemapData(this.tilemap, this.mapData);
         
         console.log('Tilemap created and added to scene');
         console.log('Map size:', this.tilemap.columns, 'x', this.tilemap.rows);

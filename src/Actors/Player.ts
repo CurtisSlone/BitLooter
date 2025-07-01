@@ -3,7 +3,7 @@ import { Resources } from '../resources.js';
 import {GameConstants} from '../GameConstants.js';
 
 // Import the CollisionSystem class for type checking
-import { CollisionSystem } from '../Systems/CollisionSystem.js';
+import { WorldCollisionSystem } from '../Systems/WorldCollisionSystem.js';
 
 export interface PlayerData {
     id: string;
@@ -18,7 +18,7 @@ export class Player extends ex.Actor {
     public readonly playerName: string;
     public readonly isLocalPlayer: boolean;
     private playerColor: ex.Color;
-    private collisionSystem: CollisionSystem | null = null;
+    private worldCollisionSystem: WorldCollisionSystem | null = null;
     
     // Animation properties
     private animations: { [key: string]: ex.Animation } = {};
@@ -56,7 +56,7 @@ export class Player extends ex.Actor {
         // Get reference to collision system from the scene
         const scene = engine.currentScene as any;
         if (scene.getCollisionSystem) {
-            this.collisionSystem = scene.getCollisionSystem();
+            this.worldCollisionSystem = scene.getCollisionSystem();
             console.log('Player found collision system');
         } else {
             console.warn('Player could not find collision system');
@@ -152,7 +152,7 @@ export class Player extends ex.Actor {
     }
 
     private moveWithCollision(movement: ex.Vector): void {
-        if (!this.collisionSystem) {
+        if (!this.worldCollisionSystem) {
             // No collision system, move freely
             this.pos = this.pos.add(movement);
             return;
@@ -180,7 +180,7 @@ export class Player extends ex.Actor {
         });
 
         // Check collision at new position
-        if (!this.collisionSystem.checkRectangleCollision(bounds)) {
+        if (!this.worldCollisionSystem.checkRectangleCollision(bounds)) {
             // No collision, move to new position
             this.pos = newPosition;
         } else {
@@ -190,7 +190,7 @@ export class Player extends ex.Actor {
     }
 
     private trySlideMovement(movement: ex.Vector): void {
-        if (!this.collisionSystem) return;
+        if (!this.worldCollisionSystem) return;
 
         // Use the same reduced collision size for sliding
         const fullWidth = (this.width * this.scale.x);
@@ -212,7 +212,7 @@ export class Player extends ex.Actor {
                 bottom: horizontalPos.y + halfHeight
             });
 
-            if (!this.collisionSystem.checkRectangleCollision(horizontalBounds)) {
+            if (!this.worldCollisionSystem.checkRectangleCollision(horizontalBounds)) {
                 this.pos = horizontalPos;
                 return;
             }
@@ -228,7 +228,7 @@ export class Player extends ex.Actor {
                 bottom: verticalPos.y + halfHeight
             });
 
-            if (!this.collisionSystem.checkRectangleCollision(verticalBounds)) {
+            if (!this.worldCollisionSystem.checkRectangleCollision(verticalBounds)) {
                 this.pos = verticalPos;
             }
         }

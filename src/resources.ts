@@ -13,8 +13,7 @@ export const Resources = {
 
 export const loader = new ex.Loader([
     Resources.overworldTilemap,
-    Resources.overworldTileset,
-    Resources.playerSpriteSheet
+    Resources.overworldTileset
 ]);
 
 // Add loading event listeners for debugging

@@ -70,8 +70,6 @@ export class OverworldScene extends ex.Scene {
             }
         });
 
-        console.log('Tileset sprite sheet created with', tilesetSprite.columns, 'x', tilesetSprite.rows, 'tiles');
-
         // Process each layer from the Tiled data
         this.mapData.layers?.forEach((layer: any) => {
             if (layer.type === 'tilelayer' && layer.data) {
@@ -101,10 +99,6 @@ export class OverworldScene extends ex.Scene {
         
         // Pass tilemap data to collision system
         this.WorldcollisionSystem.setTilemapData(this.tilemap, this.mapData);
-        
-        console.log('Tilemap created and added to scene');
-        console.log('Map size:', this.tilemap.columns, 'x', this.tilemap.rows);
-        console.log('Tilemap scale:', this.tilemap.scale);
     }
 
     private createLocalPlayer(): void {
@@ -117,7 +111,7 @@ export class OverworldScene extends ex.Scene {
         const localPlayerData: PlayerData = {
             id: 'local-player-1',
             name: 'You',
-            color: ex.Color.Blue,
+            spriteImageSource: Resources.playerSpriteSheet,
             position: spawnPosition,
             isLocalPlayer: true
         };
@@ -126,7 +120,6 @@ export class OverworldScene extends ex.Scene {
         this.localPlayer = new Player(localPlayerData);
         this.add(this.localPlayer);
         
-        console.log('Local player created at:', spawnPosition);
     }
 
     private findPlayerSpawnPoint(): ex.Vector {

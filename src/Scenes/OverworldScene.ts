@@ -1,8 +1,8 @@
 import * as ex from 'excalibur';
-import { Resources } from '../resources.js';
-import { DebugSystem } from '../Systems/DebugSystem.js';
+import { MapResources } from '../resources.js';
 import { WorldCollisionSystem } from '../Systems/WorldCollisionSystem.js';
-import { Player, PlayerData } from '../Actors/Player.js';
+import { Player } from '../Actors/Player.js';
+import { PlayerData } from '../Actors/PlayerInterfaces.js';
 import { GameConstants } from '../GameConstants.js';
 
 export class OverworldScene extends ex.Scene {
@@ -20,7 +20,6 @@ export class OverworldScene extends ex.Scene {
   ;
         
         // Add systems to the scene
-        this.world.add(new DebugSystem());
         this.WorldcollisionSystem = new WorldCollisionSystem();
         this.world.add(this.WorldcollisionSystem);
 
@@ -38,12 +37,12 @@ export class OverworldScene extends ex.Scene {
 
     private createTilemap(): void {
 
-        if (!Resources.overworldTilemap.isLoaded()) {
+        if (!MapResources.overworldTilemap.isLoaded()) {
             return;
         }
 
         // Get the loaded JSON data
-        this.mapData = Resources.overworldTilemap.data;
+        this.mapData = MapResources.overworldTilemap.data;
 
 
         // Create tilemap manually using the JSON data
@@ -61,10 +60,10 @@ export class OverworldScene extends ex.Scene {
 
         // Create a sprite sheet from the tileset
         const tilesetSprite = ex.SpriteSheet.fromImageSource({
-            image: Resources.overworldTileset,
+            image: MapResources.overworldTileset,
             grid: {
-                columns: Math.floor(Resources.overworldTileset.width / this.mapData.tilewidth),
-                rows: Math.floor(Resources.overworldTileset.height / this.mapData.tileheight),
+                columns: Math.floor(MapResources.overworldTileset.width / this.mapData.tilewidth),
+                rows: Math.floor(MapResources.overworldTileset.height / this.mapData.tileheight),
                 spriteWidth: this.mapData.tilewidth,
                 spriteHeight: this.mapData.tileheight
             }
@@ -111,8 +110,7 @@ export class OverworldScene extends ex.Scene {
         const localPlayerData: PlayerData = {
             id: 'local-player-1',
             name: 'You',
-            spriteImageSource: Resources.playerSpriteSheet,
-            position: spawnPosition,
+            spriteImageSource: MapResources.playerSpriteSheet,
             isLocalPlayer: true
         };
 

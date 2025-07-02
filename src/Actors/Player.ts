@@ -1,17 +1,10 @@
 import * as ex from 'excalibur';
-import { Resources } from '../resources.js';
 import {GameConstants} from '../GameConstants.js';
+import { PlayerData } from './PlayerInterfaces.js';
 
 // Import the CollisionSystem class for type checking
 import { WorldCollisionSystem } from '../Systems/WorldCollisionSystem.js';
 
-export interface PlayerData {
-    id: string;
-    name: string;
-    spriteImageSource: ex.ImageSource;
-    position: ex.Vector;
-    isLocalPlayer: boolean;
-}
 
 export class Player extends ex.Actor {
     public readonly playerId: string;
@@ -39,7 +32,7 @@ export class Player extends ex.Actor {
             name: `player-${playerData.id}`
         });
 
-        this.playerId = playerData.id;
+        this.playerId = playerData.id; 
         this.playerName = playerData.name;
         this.isLocalPlayer = playerData.isLocalPlayer;
         this.spriteImageSource = playerData.spriteImageSource;
